@@ -5,6 +5,7 @@ package textExcel;
 
 public class TextCell implements Cell
 {
+	
 	private String value;
 	
 	// constructor
@@ -15,8 +16,7 @@ public class TextCell implements Cell
 	// Gets a cut number or whole number with spaces without double-quotes. Returns String
 	@Override
 	public String abbreviatedCellText() {
-		String text = this.value.substring(1, value.length() - 1);
-		if (text.length() == 0) return "          ";
+		String text = this.value.substring(1, this.value.length() - 1);
 		return (text + "          ").substring(0, 10);
 	}
 	
@@ -25,4 +25,5 @@ public class TextCell implements Cell
 	public String fullCellText() {
 		return this.value;
 	}
+	
 }

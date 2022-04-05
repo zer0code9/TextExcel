@@ -23,18 +23,16 @@ public class FormulaCell extends RealCell
 	}
 	
 	// Goes through every RealCell from start to end for SUM and AVG, or
-	// Does every operation one by one by order of operation, can have ints, doubles, RealCells, pi.
-	// Return double
+	// Does every operation one by one by order of operation, can have ints, doubles, RealCells.
+	// Returns double
 	@Override
 	public double getDoubleValue() {
-		String formula = super.fullCellText();
-		double output = 0;
-		formula = formula.substring(2, formula.length() - 2); // formula.indexOf("(") + 2, formula.indexOf(")") - 1
+		String formula = super.fullCellText(); // RealCell
+		double output = 0.0;
+		formula = formula.substring(2, formula.length() - 2);
 		String[] array = formula.split(" ");
 		ArrayList<String> parts = new ArrayList<String>();
-		for (int i = 0; i < array.length; i++) {
-			parts.add(array[i]);
-		}
+		for (int i = 0; i < array.length; i++) parts.add(array[i]); // Makes Array an ArrayList
 		
 		if (formula.toLowerCase().contains("sum") || formula.toLowerCase().contains("avg")) {
 			String equation = formula.substring(4);
@@ -43,7 +41,7 @@ public class FormulaCell extends RealCell
 			int cellCount = 0;
 			for (int r = loc1.getRow(); r <= loc2.getRow(); r++) {
 				for (int c = loc1.getCol(); c <= loc2.getCol(); c++) {
-					Location loc = new SpreadsheetLocation(((char) (c + 'A')) + "" + (r + 1));
+					Location loc = new SpreadsheetLocation(((char) (c + 'A')) +""+ (r + 1));
 					double value = 0.0;
 					if (this.sheet.getCell(loc) instanceof RealCell)
 						value = ((RealCell) this.sheet.getCell(loc)).getDoubleValue();
@@ -75,7 +73,6 @@ public class FormulaCell extends RealCell
 			output = getElement(parts.get(0));
 		}
 		return output;
-		
 	}
 	
 	// Gets what's inside the specified element, if it's a RealCell, gets what's inside that cell
@@ -83,8 +80,7 @@ public class FormulaCell extends RealCell
 	// Takes String & returns double
 	public double getElement(String element) {
 		double number = 0;
-		if ("pi".contains(element.toLowerCase())) number = Math.PI;
-		else if ("abcdefghijkl".contains(element.toLowerCase().substring(0, 1))) {
+		if ("abcdefghijkl".contains(element.toLowerCase().substring(0, 1))) {
 			Location loc = new SpreadsheetLocation(element.toUpperCase());
 			if (this.sheet.getCell(loc) instanceof RealCell)
 				number = ((RealCell) this.sheet.getCell(loc)).getDoubleValue();

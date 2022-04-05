@@ -5,6 +5,7 @@ package textExcel;
 
 public class RealCell implements Cell
 {
+	
 	private String value;
 	
 	// constructor

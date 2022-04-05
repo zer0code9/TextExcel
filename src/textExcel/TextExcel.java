@@ -12,9 +12,10 @@ public class TextExcel
 	{
 	    Spreadsheet sheet = new Spreadsheet();
 	    Scanner input = new Scanner(System.in);
+	    System.out.println(sheet.getGridText());
 	    String command = input.nextLine();
 	    while (!command.equalsIgnoreCase("quit")) {
-	    	System.out.println(sheet.processCommand(command));
+	    	System.out.println(sheet.processCommand(command) + "\n");
 	    	command = input.nextLine();
 	    }
 	    
