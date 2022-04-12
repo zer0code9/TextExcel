@@ -1,13 +1,15 @@
 package textExcel;
 import java.util.ArrayList;
 
+// Anselme Sorin
 // FormulaCell: Object Class
 // -> RealCell: Superclass
+// The Cell for formula values
 
 public class FormulaCell extends RealCell
 {
 	
-	private Spreadsheet sheet;
+	private Spreadsheet sheet; // Cheap copies
 
 	// constructor
 	public FormulaCell(String formula, Spreadsheet sheet) {
@@ -16,15 +18,17 @@ public class FormulaCell extends RealCell
 		
 	}
 	
-	// Gets a cut double or whole double with spaces. Return String
+	// Gets double value of the formula, cut or with remaining spaces for 10 characters
+	// Return String
 	@Override
 	public String abbreviatedCellText() {
 		return (getDoubleValue() + "          ").substring(0, 10);
 	}
 	
 	// Goes through every RealCell from start to end for SUM and AVG, or
-	// Does every operation one by one by order of operation, can have ints, doubles, RealCells.
+	// Does every operation one by one by order of operation, can have ints, doubles, RealCells, and now parenthesis.
 	// Returns double
+	// THIS IS HARD TO UNDERSTAND :(
 	@Override
 	public double getDoubleValue() {
 		String formula = super.fullCellText(); // RealCell
@@ -35,21 +39,13 @@ public class FormulaCell extends RealCell
 		for (int i = 0; i < array.length; i++) parts.add(array[i]); // Makes Array an ArrayList
 		
 		if (formula.toLowerCase().contains("sum") || formula.toLowerCase().contains("avg")) {
-			String equation = formula.substring(4);
-			Location loc1 = new SpreadsheetLocation(equation.substring(0, equation.indexOf("-")));
-			Location loc2 = new SpreadsheetLocation(equation.substring(equation.indexOf("-") + 1));
+			String expression = formula.substring(4);
+			Location loc1 = new SpreadsheetLocation(expression.substring(0, expression.indexOf("-")));
+			Location loc2 = new SpreadsheetLocation(expression.substring(expression.indexOf("-") + 1));
 			int cellCount = 0;
 			for (int r = loc1.getRow(); r <= loc2.getRow(); r++) {
 				for (int c = loc1.getCol(); c <= loc2.getCol(); c++) {
-					Location loc = new SpreadsheetLocation(((char) (c + 'A')) +""+ (r + 1));
-					double value = 0.0;
-					if (this.sheet.getCell(loc) instanceof RealCell)
-						value = ((RealCell) this.sheet.getCell(loc)).getDoubleValue();
-					else {
-						value = 0;
-						System.out.println("ERROR: Not A RealCell; Skipped cell " + ((char) (c + 'A')) + "" + (r + 1));
-					}
-					output += value;
+					output += getElement(((char) (c + 'A')) +""+ (r + 1));
 					cellCount++;
 				}
 			}
@@ -63,14 +59,18 @@ public class FormulaCell extends RealCell
 					int p1 = parts.indexOf("(");
 					int p2 = parts.indexOf(")");
 					ArrayList<String> subparts = new ArrayList<String>();
-					for (int i = p1 + 1; i < p2; i++) subparts.add(parts.get(i));
-					while (subparts.size() > 1) doOperations(subparts, number);
-					for (int i = (p2 - p1) + 1; i != 0; i--) parts.remove(p1);
-					parts.add(p1 ,subparts.get(0));
+					
+					for (int i = p1 + 1; i < p2; i++) // Getting the expression inside the parenthesis
+						subparts.add(parts.get(i));
+					
+					while (subparts.size() > 1)
+						doOperations(subparts, number);
+
+					expressionToResultSwitch(parts, (p2 - p1) + 1, p1, subparts.get(0));
 				}
-				doOperations(parts, number);
+				doOperations(parts, number); // For the resulting expression that doesn't have parenthesis
 			}
-			output = getElement(parts.get(0));
+			output = getElement(parts.get(0)); // The last one standing
 		}
 		return output;
 	}
@@ -99,28 +99,50 @@ public class FormulaCell extends RealCell
 	// Takes ArrayList<String>, double & returns ArrayList<String> (no return needed anyway)
 	public ArrayList<String> doOperations(ArrayList<String> parts, double number) {
 		if (parts.contains("*") || parts.contains("/")) {
-			int min = Math.min(parts.indexOf("*"), parts.indexOf("/"));
-			if (min == -1) min = Math.max(parts.indexOf("*"), parts.indexOf("/"));
-			double num1 = getElement(parts.get(min - 1));
-			double num2 = getElement(parts.get(min + 1));
-			if (parts.get(min).equals("*")) number = num1 * num2;
-			else number = num1 / num2;
-			parts.add(min + 2, number + "");
-			for (int i = 3; i != 0; i--) parts.remove(min - 1);
+			double[] expression = getExpression(parts, "*", "/");
+			int operatorIndex = (int) expression[1];
+			double operand1 = expression[0];
+			double operand2 = expression[2];
+			
+			if (parts.get(operatorIndex).equals("*")) number = operand1 * operand2; // Multiplication
+			else number = operand1 / operand2; // Division
+			
+			expressionToResultSwitch(parts, 3, operatorIndex - 1, number+"");
 		}
 		else if (parts.contains("+") || parts.contains("-")) {
-			int min = Math.min(parts.indexOf("+"), parts.indexOf("-"));
-			if (min == -1) min = Math.max(parts.indexOf("+"), parts.indexOf("-"));
-			double num1 = getElement(parts.get(min - 1));
-			double num2 = getElement(parts.get(min + 1));
-			if (parts.get(min).equals("+")) number = num1 + num2;
-			else {
-				if (num2 < 0) number = num1 + (num2 * -1);
-				else number = num1 - num2;
+			double[] expression = getExpression(parts, "+", "-");
+			int operatorIndex = (int) expression[1];
+			double operand1 = expression[0];
+			double operand2 = expression[2];
+			
+			if (parts.get(operatorIndex).equals("+")) number = operand1 + operand2; // Addition
+			else { // Substraction
+				if (operand2 < 0) number = operand1 + (operand2 * -1);
+				else number = operand1 - operand2;
 			}
-			parts.add(min + 2, number + "");
-			for (int i = 3; i != 0; i--) parts.remove(min - 1);
+			
+			expressionToResultSwitch(parts, 3, operatorIndex - 1, number+"");
 		}
+		return parts;
+	}
+	
+	// Get the 2 operands and the index of the operator from the overall expression
+	// Takes ArrayList<String>, 2 Strings & returns double[]
+	public double[] getExpression(ArrayList<String> parts, String operator1, String operator2) {
+		int operatorIndex = Math.min(parts.indexOf(operator1), parts.indexOf(operator2));
+		if (operatorIndex == -1) operatorIndex = Math.max(parts.indexOf(operator1), parts.indexOf(operator2));
+		double operand1 = getElement(parts.get(operatorIndex - 1));
+		double operand2 = getElement(parts.get(operatorIndex + 1));
+		double[] expression = {operand1, operatorIndex, operand2};
+		return expression;
+	}
+	
+	// Replace the calculated expression of length start to its result
+	// Takes ArrayList<String>, 2 ints, String & returns ArrayList<String>
+	public ArrayList<String> expressionToResultSwitch(ArrayList<String> parts, int start, int index, String value) {
+		for (int i = start; i != 0; i--) // Removing the three elements that made the operation (number(or Cell's value) operator number(or Cell's value))
+			parts.remove(index);
+		parts.add(index, value); // Add the resultant inside the ArrayList
 		return parts;
 	}
 

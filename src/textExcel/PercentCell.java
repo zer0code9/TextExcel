@@ -1,7 +1,9 @@
 package textExcel;
 
+// Anselme Sorin
 // PercentCell: Object Class
 // -> RealCell: Superclass
+// The Cell for percent values
 
 public class PercentCell extends RealCell
 {
@@ -11,19 +13,22 @@ public class PercentCell extends RealCell
 		super(percent); // RealCell
 	}
 	
-	// Gets the integer of a number with spaces. Return String
+	// Gets the integer of the double with %, cut or with remaining spaces for 10 characters
+	// Return String
 	@Override
 	public String abbreviatedCellText() {
 		return (((int) getDoubleValue()) + "%          ").substring(0, 10);
 	}
 	
-	// Gets the whole double as a String. Returns String
+	// Gets the whole double divided by 100 as a String
+	// Returns String
 	@Override
 	public String fullCellText() {
 		return (getDoubleValue() / 100) + "";
 	}
 	
-	// Gets the number divided by 100 instead of %. Return double
+	// Gets the number without the %
+	// Return double
 	@Override
 	public double getDoubleValue() {
 		String text = super.fullCellText(); // RealCell

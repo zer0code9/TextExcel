@@ -1,7 +1,9 @@
 package textExcel;
 
+// Anselme Sorin
 // RealCell: Object Class
 // -> Cell: Interface
+// The Cell for numeric values
 
 public class RealCell implements Cell
 {
@@ -13,19 +15,22 @@ public class RealCell implements Cell
 		this.value = number;
 	}
 	
-	// Gets a cut double or whole double with spaces. Return String
+	// Gets the double cut or with the remaining spaces for 10 characters
+	// Return String
 	@Override
 	public String abbreviatedCellText() {
 		return (getDoubleValue() + "          ").substring(0, 10);
 	}
 	
-	// Gets the whole number as a String. Returns String
+	// Gets the whole number as a String
+	// Returns String
 	@Override
 	public String fullCellText() {
 		return this.value;
 	}
 	
-	// Gets the whole number as a double. Returns double 
+	// Gets the whole number as a double
+	// Returns double 
 	public double getDoubleValue() {
 		return Double.parseDouble(this.value);
 	}
