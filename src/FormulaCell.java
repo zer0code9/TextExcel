@@ -78,7 +78,6 @@ public class FormulaCell extends RealCell
     // Takes String & returns double
     public double getElement(String element) {
         double number;
-        System.out.println(element.toLowerCase().charAt(0));
         if ("abcdefghijkl".contains(element.toLowerCase().substring(0, 1))) {
             Location loc = new SpreadsheetLocation(element.toUpperCase());
             if (this.sheet.getCell(loc) instanceof RealCell)
