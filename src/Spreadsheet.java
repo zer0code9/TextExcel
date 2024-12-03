@@ -32,7 +32,7 @@ public class Spreadsheet implements Grid {
         if (command.isEmpty() || command.trim().isEmpty()) return "ERROR: No Command";
         String[] parts = command.split(" ", 3);
 
-        if (command.contains("=")) {
+        if (command.contains("=")) { // [cell] = [value]
             String cell = parts[0].toUpperCase();
             if (cell.isEmpty() || cell.equals("=")) return "ERROR: No Specified Cell";
             if (!invalidCell(cell).isEmpty()) return invalidCell(cell);
@@ -41,15 +41,15 @@ public class Spreadsheet implements Grid {
             Location loc = new SpreadsheetLocation(cell);
             String value = parts[2];
 
-            if (parts[2].startsWith("\"") && parts[2].endsWith("\"")) // Text Cell
+            if (parts[2].startsWith("\"") && parts[2].endsWith("\"")) // [cell] = "Hello World"
                 this.sheet[loc.getRow()][loc.getCol()] = new TextCell(value);
 
-            else if (parts[2].endsWith("%")) { // Percent Cell
+            else if (parts[2].endsWith("%")) { // [cell] = 1%
                 if (!isNum(parts[2].substring(0, parts[2].length() - 2))) return "ERROR: Not A Number";
                 this.sheet[loc.getRow()][loc.getCol()] = new PercentCell(value);
             }
 
-            else if (parts[2].startsWith("(") && parts[2].endsWith(")")) { // Formula Cell
+            else if (parts[2].startsWith("(") && parts[2].endsWith(")")) { // [cell] = ( 1 + 2 )
                 if (parts[2].toUpperCase().contains(cell)) return "ERROR: Self Reference";
 
                 if (parts[2].toLowerCase().contains("sum") || parts[2].toLowerCase().contains("avg")) {
@@ -64,7 +64,7 @@ public class Spreadsheet implements Grid {
                 this.sheet[loc.getRow()][loc.getCol()] = new FormulaCell(value, this);
             }
 
-            else if ("1234567890".contains(parts[2].charAt(parts[2].length() - 1)+"")) { // Value Cell
+            else if ("1234567890".contains(parts[2].charAt(parts[2].length() - 1)+"")) { // [cell] = 1
                 if (!isNum(parts[2])) return "ERROR: Not A Number";
                 this.sheet[loc.getRow()][loc.getCol()] = new ValueCell(value);
             }
@@ -73,10 +73,10 @@ public class Spreadsheet implements Grid {
             return getGridText();
         }
 
-        else if (parts[0].toLowerCase().contains("clear")) {
-            if (command.equalsIgnoreCase("clear")) {
+        else if (parts[0].toLowerCase().contains("clear")) { // clear [cell?]
+            if (command.equalsIgnoreCase("clear")) { // clear
                 empty(this.sheet);
-            } else if (parts.length == 2) {
+            } else if (parts.length == 2) { // clear [cell]
                 String cell = parts[1].toUpperCase();
                 if (!invalidCell(cell).isEmpty()) return invalidCell(cell);
                 Location clearLoc = new SpreadsheetLocation(cell);
@@ -86,16 +86,16 @@ public class Spreadsheet implements Grid {
             return getGridText();
         }
 
-        else if (parts[0].length() <= 3 && parts[0].length() >= 2) {
+        else if (parts[0].length() <= 3 && parts[0].length() >= 2) { // [cell]
             String cell = parts[0].toUpperCase();
             if (!invalidCell(cell).isEmpty()) return invalidCell(cell);
             Location cellLoc = new SpreadsheetLocation(cell);
             return getCell(cellLoc).fullCellText();
         }
 
-        else if (parts[0].equalsIgnoreCase("history")) {
+        else if (parts[0].equalsIgnoreCase("history")) { // history [option] [value?]
             String commands = "";
-            if (parts[1].equalsIgnoreCase("start")) {
+            if (parts[1].equalsIgnoreCase("start")) { // history start [int]
                 if (this.haveHistory) return "ERROR: History Is Already On";
                 if (parts.length == 2) return "ERROR: No Argument (int)";
                 if (Integer.parseInt(parts[2]) < 0) return "ERROR: Length Is Negative";
@@ -104,13 +104,13 @@ public class Spreadsheet implements Grid {
                 history = new ArrayList<String>();
                 this.haveHistory = true;
             }
-            else if (parts[1].equalsIgnoreCase("display")) {
+            else if (parts[1].equalsIgnoreCase("display")) { // history display
                 if (!this.haveHistory) return "ERROR: History Is Off";
                 for (String s : this.history) {
                     commands += s + "\n";
                 }
             }
-            else if (parts[1].equalsIgnoreCase("clear")) {
+            else if (parts[1].equalsIgnoreCase("clear")) { // history clear [int]
                 if (!this.haveHistory) return "ERROR: History Is Off";
                 if (parts.length == 2) return "ERROR: No Argument (int)";
                 if (Integer.parseInt(parts[2]) < 0) return "ERROR: Length Is Negative";
@@ -118,12 +118,12 @@ public class Spreadsheet implements Grid {
                 for (int i = Integer.parseInt(parts[2]); i != 0; i--) {
                     try {
                         this.history.remove(this.history.size() - 1);
-                    }catch (IndexOutOfBoundsException e) {
+                    } catch (IndexOutOfBoundsException e) {
                         System.out.print("");
                     }
                 }
             }
-            else if (parts[1].equalsIgnoreCase("stop")) { // History is gone
+            else if (parts[1].equalsIgnoreCase("stop")) { // history stop
                 if (!this.haveHistory) return "ERROR: History Is Already Off";
                 history = null;
                 this.haveHistory = false;

@@ -1,7 +1,6 @@
 import java.util.Scanner;
 
-// TextExel: Client Class
-// -> Object: Superclass
+// Excel: Client Class
 // Where everything begins, the Client :o
 
 public class Excel
