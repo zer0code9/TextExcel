@@ -1,8 +1,7 @@
 // EmptyCell: Object Class
 // -> Cell: Interface
 
-public class EmptyCell implements Cell
-{
+public class EmptyCell implements Cell {
 
     // Gets 10 spaces
     // Returns String

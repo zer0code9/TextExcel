@@ -2,8 +2,7 @@
 // -> Location: Interface
 // Everything related to the locations of Cells: getting the row number and column number of a specified cell
 
-public class SpreadsheetLocation implements Location
-{
+public class SpreadsheetLocation implements Location {
 
     private final int row;
     private final int col;

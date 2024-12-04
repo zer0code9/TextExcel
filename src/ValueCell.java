@@ -2,8 +2,7 @@
 // -> RealCell: Superclass
 // The Cell for number values
 
-public class ValueCell extends RealCell
-{
+public class ValueCell extends RealCell {
 
     // constructor
     public ValueCell(String number) {

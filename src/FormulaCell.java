@@ -5,8 +5,7 @@ import java.util.Arrays;
 // -> RealCell: Superclass
 // The Cell for formula values
 
-public class FormulaCell extends RealCell
-{
+public class FormulaCell extends RealCell {
 
     private final Spreadsheet sheet; // Cheap copies
 
@@ -14,7 +13,6 @@ public class FormulaCell extends RealCell
     public FormulaCell(String formula, Spreadsheet sheet) {
         super(formula); // RealCell
         this.sheet = sheet;
-
     }
 
     // Gets double value of the formula, cut or with remaining spaces for 10 characters
@@ -24,53 +22,31 @@ public class FormulaCell extends RealCell
         return (getDoubleValue() + "          ").substring(0, 10);
     }
 
-    // Goes through every RealCell from start to end for SUM and AVG, or
     // Does every operation one by one by order of operation, can have ints, doubles, RealCells, and now parenthesis.
     // Returns double
-    // THIS IS HARD TO UNDERSTAND :(
     @Override
     public double getDoubleValue() {
         String formula = super.fullCellText(); // RealCell
-        double output = 0.0;
         formula = formula.substring(2, formula.length() - 2);
-        String[] array = formula.split(" ");
-        // Makes Array an ArrayList
-        ArrayList<String> parts = new ArrayList<>(Arrays.asList(array));
+        ArrayList<String> parts = new ArrayList<>(Arrays.asList(formula.split(" ")));
 
-        if (formula.toLowerCase().contains("sum") || formula.toLowerCase().contains("avg")) {
-            String expression = formula.substring(4);
-            Location loc1 = new SpreadsheetLocation(expression.substring(0, expression.indexOf("-")));
-            Location loc2 = new SpreadsheetLocation(expression.substring(expression.indexOf("-") + 1));
-            int cellCount = 0;
-            for (int r = loc1.getRow(); r <= loc2.getRow(); r++) {
-                for (int c = loc1.getCol(); c <= loc2.getCol(); c++) {
-                    output += getElement(((char) (c + 'A')) +""+ (r + 1));
-                    cellCount++;
-                }
+        while (parts.size() > 1) {
+            while (parts.contains("(") && parts.contains(")")) {
+                int p1 = parts.indexOf("(");
+                int p2 = parts.indexOf(")");
+                ArrayList<String> subparts = new ArrayList<>();
+
+                for (int i = p1 + 1; i < p2; i++) // Getting the expression inside the parenthesis
+                    subparts.add(parts.get(i));
+
+                while (subparts.size() > 1)
+                    doOperations(subparts);
+
+                expressionToResultSwitch(parts, (p2 - p1) + 1, p1, subparts.get(0));
             }
-            if (formula.toLowerCase().contains("avg")) output /= cellCount;
-
-        } else {
-
-            while (parts.size() > 1) {
-                while (parts.contains("(") && parts.contains(")")) {
-                    int p1 = parts.indexOf("(");
-                    int p2 = parts.indexOf(")");
-                    ArrayList<String> subparts = new ArrayList<>();
-
-                    for (int i = p1 + 1; i < p2; i++) // Getting the expression inside the parenthesis
-                        subparts.add(parts.get(i));
-
-                    while (subparts.size() > 1)
-                        doOperations(subparts);
-
-                    expressionToResultSwitch(parts, (p2 - p1) + 1, p1, subparts.get(0));
-                }
-                doOperations(parts); // For the resulting expression that doesn't have parenthesis
-            }
-            output = getElement(parts.get(0)); // The last one standing
+            doOperations(parts); // For the resulting expression that doesn't have parenthesis
         }
-        return output;
+        return getElement(parts.get(0)); // The last one standing
     }
 
     // Gets what's inside the specified element, if it's a RealCell, gets what's inside that cell
@@ -78,7 +54,7 @@ public class FormulaCell extends RealCell
     // Takes String & returns double
     public double getElement(String element) {
         double number;
-        if ("abcdefghijkl".contains(element.toLowerCase().substring(0, 1))) {
+        if (this.sheet.isCell(element.toUpperCase())) {
             Location loc = new SpreadsheetLocation(element.toUpperCase());
             if (this.sheet.getCell(loc) instanceof RealCell)
                 number = ((RealCell) this.sheet.getCell(loc)).getDoubleValue();
@@ -86,8 +62,7 @@ public class FormulaCell extends RealCell
                 number = 0;
                 System.out.println("ERROR: Not A RealCell; Skipped cell " + element.toUpperCase());
             }
-        }
-        else number = Double.parseDouble(element);
+        } else number = Double.parseDouble(element);
         return number;
     }
 
@@ -131,7 +106,7 @@ public class FormulaCell extends RealCell
         if (operatorIndex == -1) operatorIndex = Math.max(parts.indexOf(operator1), parts.indexOf(operator2));
         double operand1 = getElement(parts.get(operatorIndex - 1));
         double operand2 = getElement(parts.get(operatorIndex + 1));
-        return new double[]{operand1, operatorIndex, operand2};
+        return new double[] { operand1, operatorIndex, operand2 };
     }
 
     // Replace the calculated expression of length start to its result

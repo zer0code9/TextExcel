@@ -2,8 +2,7 @@
 // -> Cell: Interface
 // The Cell for numeric values
 
-public class RealCell implements Cell
-{
+public class RealCell implements Cell {
 
     private final String value;
 

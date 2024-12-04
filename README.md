@@ -2,8 +2,8 @@
     <img width="15%" src="./img/logo.png">
     <h1 align="center">Java Excel</h1>
 </p>
-<a href="https://github.com/SlashDEV9" style="text-decoration: none"><p align="center">
-    <img src="https://img.shields.io/badge/slashDEV-javaExcel-red?logo=javascript&logoColor=red">
+<a href="https://github.com/zer0code9" style="text-decoration: none"><p align="center">
+    <img src="https://img.shields.io/badge/zer0code-javaExcel-red?logo=javascript&logoColor=red">
 </p></a>
 <a href="https://github.com/zer0code9/javaExcel" style="text-decoration: none"><p align="center">
     <img alt="GitHub" src="https://img.shields.io/github/license/zer0code9/javaExcel?logo=github">

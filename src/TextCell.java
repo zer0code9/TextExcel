@@ -2,13 +2,11 @@
 // -> Cell: Interface
 // The Cell for text values
 
-public class TextCell implements Cell
-{
+public class TextCell implements Cell {
 
     private final String value;
 
     // constructor
-
     public TextCell(String text) {
         this.value = text;
     }
